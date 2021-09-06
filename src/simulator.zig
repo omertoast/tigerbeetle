@@ -67,6 +67,9 @@ pub fn main() !void {
     const idle_on_probability = prng.random.uintLessThan(u8, 20);
     const idle_off_probability = 10 + prng.random.uintLessThan(u8, 10);
 
+    // Chance to crash a random replica every 100 ticks
+    const replica_crash_probability = prng.random.uintLessThan(u8, 10);
+
     cluster = try Cluster.create(allocator, &prng.random, .{
         .cluster = 0,
         .replica_count = replica_count,
@@ -114,6 +117,7 @@ pub fn main() !void {
         \\          request_probability={}%
         \\          idle_on_probability={}%
         \\          idle_off_probability={}%
+        \\          replica_crash_probability={}%
         \\          one_way_delay_mean={} ticks
         \\          one_way_delay_min={} ticks
         \\          packet_loss_probability={}%
@@ -135,6 +139,7 @@ pub fn main() !void {
         request_probability,
         idle_on_probability,
         idle_off_probability,
+        replica_crash_probability,
         cluster.options.network_options.packet_simulator_options.one_way_delay_mean,
         cluster.options.network_options.packet_simulator_options.one_way_delay_min,
         cluster.options.network_options.packet_simulator_options.packet_loss_probability,
@@ -182,6 +187,11 @@ pub fn main() !void {
                 }
                 if (chance(random, idle_on_probability)) idle = true;
             }
+        }
+
+        if (tick % 100 == 0 and chance(random, replica_crash_probability)) {
+            const replica_to_crash = random.uintLessThan(u8, replica_count);
+            try cluster.simulate_replica_crash(replica_to_crash);
         }
     }
 

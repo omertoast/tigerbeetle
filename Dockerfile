@@ -16,5 +16,3 @@ FROM ubuntu:20.10 AS release
 WORKDIR /opt/beta-beetle
 
 COPY --from=build /opt/beta-beetle/tigerbeetle ./tigerbeetle
-
-ENTRYPOINT ["./tigerbeetle"]

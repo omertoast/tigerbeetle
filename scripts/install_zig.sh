@@ -40,10 +40,13 @@ ZIG_TARGET="zig-$ZIG_OS-$ZIG_ARCH"
 
 # Determine the build, split the JSON line on whitespace and extract the 2nd field, then remove quotes and commas:
 if command -v wget &> /dev/null; then
-    ZIG_URL=`wget --quiet -O - https://ziglang.org/download/index.json | grep "$ZIG_TARGET" | grep "$ZIG_RELEASE" | awk '{print $2}' | sed 's/[",]//g'`
+    ZIG_URLS=`wget --quiet -O - https://ziglang.org/download/index.json | grep "$ZIG_TARGET" | grep "$ZIG_RELEASE" | awk '{print $2}' | sed 's/[",]//g'`
 else
-    ZIG_URL=`curl --silent https://ziglang.org/download/index.json | grep "$ZIG_TARGET" | grep "$ZIG_RELEASE" | awk '{print $2}' | sed 's/[",]//g'`
+    ZIG_URLS=`curl --silent https://ziglang.org/download/index.json | grep "$ZIG_TARGET" | grep "$ZIG_RELEASE" | awk '{print $2}' | sed 's/[",]//g'`
 fi
+
+URL_ARR=($ZIG_URLS)
+ZIG_URL=${URL_ARR[1]}
 
 # Ensure that the release is actually hosted on the ziglang.org website:
 if [ -z "$ZIG_URL" ]; then
